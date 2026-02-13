@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - Construction Expense Tracker</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Additional Styles for Expenses Page */
+        .payment-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-paid {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #f83600, #f9d423);
+            color: white;
+        }
+        
+        .status-advance {
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+            color: white;
+        }
+        
+        .material-progress {
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.02);
+            border: 1px solid rgba(67,97,238,0.1);
+            transition: all 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(67,97,238,0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13,110,253,0.3);
+            color: white;
+        }
+        
+        .advance-note {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 4px solid #667eea;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+            transition: all 0.3s;
+        }
+        
+        .category-badge i {
+            margin-right: 5px;
+        }
+        
+        .category-brick { background: #ff6b6b10; color: #ff6b6b; border: 1px solid #ff6b6b30; }
+        .category-cement { background: #4d908010; color: #4d9080; border: 1px solid #4d908030; }
+        .category-labour { background: #f9c74f10; color: #f9c74f; border: 1px solid #f9c74f30; }
+        .category-steel { background: #57759010; color: #577590; border: 1px solid #57759030; }
+        .category-marble { background: #9c89b810; color: #9c89b8; border: 1px solid #9c89b830; }
+        .category-sand { background: #f9844a10; color: #f9844a; border: 1px solid #f9844a30; }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar animate__animated animate__fadeInLeft">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-gradient rounded-circle d-inline-flex p-3 mb-2">
+                            <i class="bi bi-building text-white" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="text-white mt-2 fw-bold">Construction Manager</h5>
+                        <div class="text-white-50 small" id="userInfo">
+                            <div class="spinner-border spinner-border-sm text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active bg-primary text-white" href="/expenses">
+                                <i class="bi bi-cash-stack"></i> Expenses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/reports">
+                                <i class="bi bi-bar-chart"></i> Reports
+                            </a>
+                        </li>
+                        
+                        <!-- Divider -->
+                        <li class="nav-item mt-4">
+                            <hr class="text-white-50">
+                        </li>
+                        
+                        <!-- Material Stats Quick View -->
+                        <li class="nav-item px-3 mt-2">
+                            <div class="text-white-50 small mb-2">
+                                <i class="bi bi-box-seam"></i> MATERIAL SUMMARY
+                            </div>
+                            <div id="sidebarMaterialStats" class="text-white small">
+                                <div class="text-white-50">Loading...</div>
+                            </div>
+                        </li>
+                        
+                        <!-- Divider -->
+                        <li class="nav-item mt-4">
+                            <hr class="text-white-50">
+                        </li>
+                        
+                        <!-- Logout Button -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link text-white" href="#" onclick="logout()">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- App Version -->
+                    <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                        <div class="text-white-50 small">
+                            <i class="bi bi-shield-check"></i> v2.0.0 | Secure Portal
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div>
+                        <h1 class="h2 fw-bold text-primary">
+                            <i class="bi bi-cash-stack"></i> Expense Management
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/dashboard" class="text-decoration-none">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Expenses</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="btn-toolbar mb-2 mb-md-0 gap-2">
+                        <button type="button" class="btn btn-export" onclick="exportExpenses()">
+                            <i class="bi bi-file-earmark-excel"></i> Export Excel
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                            <i class="bi bi-plus-circle"></i> Add New Expense
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Cards -->
+                <div class="quick-stats animate__animated animate__fadeInUp">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-primary bg-gradient">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                        <div class="small text-muted text-uppercase fw-bold">Total Cost</div>
+                        <div class="h3 mb-0 fw-bold" id="quickTotalCost">Rs. 0</div>
+                        <div class="progress material-progress">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-success bg-gradient">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="small text-muted text-uppercase fw-bold">Total Paid</div>
+                        <div class="h3 mb-0 fw-bold" id="quickTotalPaid">Rs. 0</div>
+                        <div class="progress material-progress">
+                            <div class="progress-bar bg-success" role="progressbar" id="paidProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-warning bg-gradient">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="small text-muted text-uppercase fw-bold">Remaining</div>
+                        <div class="h3 mb-0 fw-bold" id="quickRemaining">Rs. 0</div>
+                        <div class="progress material-progress">
+                            <div class="progress-bar bg-warning" role="progressbar" id="remainingProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-info bg-gradient">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="small text-muted text-uppercase fw-bold">Advance Paid</div>
+                        <div class="h3 mb-0 fw-bold" id="quickAdvance">Rs. 0</div>
+                        <div class="text-success small" id="advanceCount">0 entries</div>
+                    </div>
+                </div>
+
+                <!-- Material Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card animate__animated animate__fadeInUp">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-box-seam text-primary me-2"></i>
+                                    <span class="fw-bold">Material Consumption Summary</span>
+                                </div>
+                                <span class="badge bg-primary" id="materialCount">Loading...</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="materialSummaryCards">
+                                    <div class="col-12 text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section animate__animated animate__fadeInUp">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-funnel text-primary me-2"></i>
+                                <h6 class="mb-0 fw-bold">Filter Expenses</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="Brick">Brick</option>
+                                <option value="Cement">Cement</option>
+                                <option value="Labour">Labour</option>
+                                <option value="Marble">Marble</option>
+                                <option value="Steel">Steel</option>
+                                <option value="Sand">Sand</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="paymentStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Advance">Advance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="searchFilter" placeholder="🔍 Search...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Table -->
+                <div class="card mb-4 animate__animated animate__fadeInUp">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-table text-primary me-2"></i>
+                            <span class="fw-bold">All Expenses</span>
+                        </div>
+                        <span class="badge bg-primary" id="expenseCount">0 entries</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Qty</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Cost</th>
+                                        <th>Paid</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expensesTableBody">
+                                    <tr>
+                                        <td colspan="10" class="text-center py-5">
+                                            <div class="spinner-border text-primary mb-3" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <div class="text-muted">Loading expenses...</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADD EXPENSE MODAL - WITH ADVANCE PAYMENT -->
+    <!-- ============================================ -->
+    <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addExpenseModalLabel">
+                        <i class="bi bi-plus-circle"></i> Add New Expense
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calendar-check text-primary"></i> Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-tag text-primary"></i> Category <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="category" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Brick">🧱 Brick</option>
+                                    <option value="Cement">🏭 Cement</option>
+                                    <option value="Labour">👷 Labour</option>
+                                    <option value="Marble">🪨 Marble</option>
+                                    <option value="Steel">⚙️ Steel</option>
+                                    <option value="Sand">🏖️ Sand</option>
+                                    <option value="Other">📦 Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-card-text text-primary"></i> Description
+                                </label>
+                                <input type="text" class="form-control" id="description" placeholder="e.g., Portland Cement, Steel Bars, Foundation Work">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-123 text-primary"></i> Quantity <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" step="0.01" class="form-control" id="quantity" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-box text-primary"></i> Unit Type <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="unit_type" placeholder="Bags, Tons, Pieces, etc." required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-currency-rupee text-primary"></i> Unit Price (PKR) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control" id="unit_price" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calculator text-primary"></i> Total Cost
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control bg-light" id="total_cost" readonly placeholder="Auto-calculated">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-cash text-primary"></i> Amount Paid (PKR)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control" id="amount_paid" placeholder="0.00" value="0">
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i> Can be more than total cost (Advance)
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-wallet2 text-primary"></i> Remaining Balance
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control bg-light" id="remaining_balance" readonly placeholder="Auto-calculated">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADVANCE PAYMENT SECTION - Auto shows when amount > total -->
+                        <div class="row mb-4" id="advanceSection" style="display: none;">
+                            <div class="col-md-12">
+                                <div class="alert alert-info border-0 bg-gradient">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="bi bi-info-circle-fill fs-1 text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">
+                                                <i class="bi bi-cash-stack"></i> Advance Payment Detected
+                                            </h6>
+                                            <p class="mb-0 small">
+                                                You're paying more than the total cost. This will be recorded as advance payment 
+                                                and shown with a special badge in the expenses list.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-pencil-square text-primary"></i> Advance Note (Optional)
+                                </label>
+                                <textarea class="form-control" id="advance_note" rows="2" 
+                                    placeholder="e.g., Advance for next order, Bulk discount advance, Security deposit, etc."></textarea>
+                                <input type="hidden" id="is_advance" value="false">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-journal-text text-primary"></i> Additional Notes
+                                </label>
+                                <textarea class="form-control" id="notes" rows="2" placeholder="Any additional information..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveExpense()" id="saveExpenseBtn">
+                        <i class="bi bi-check-circle"></i> Save Expense
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- EDIT EXPENSE MODAL - WITH ADVANCE PAYMENT -->
+    <!-- ============================================ -->
+    <div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editExpenseModalLabel">
+                        <i class="bi bi-pencil-square"></i> Edit Expense
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editExpenseForm">
+                        <input type="hidden" id="edit_id">
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calendar-check"></i> Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="edit_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-tag"></i> Category <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="edit_category" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Brick">🧱 Brick</option>
+                                    <option value="Cement">🏭 Cement</option>
+                                    <option value="Labour">👷 Labour</option>
+                                    <option value="Marble">🪨 Marble</option>
+                                    <option value="Steel">⚙️ Steel</option>
+                                    <option value="Sand">🏖️ Sand</option>
+                                    <option value="Other">📦 Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-card-text"></i> Description
+                                </label>
+                                <input type="text" class="form-control" id="edit_description" placeholder="Enter description">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-123"></i> Quantity <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" step="0.01" class="form-control" id="edit_quantity" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-box"></i> Unit Type <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="edit_unit_type" placeholder="Bags, Tons, Pieces" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-currency-rupee"></i> Unit Price (PKR) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control" id="edit_unit_price" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calculator"></i> Total Cost
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control bg-light" id="edit_total_cost" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-cash"></i> Amount Paid (PKR)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control" id="edit_amount_paid" placeholder="0.00">
+                                </div>
+                                <small class="text-muted">Can be more than total cost</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-wallet2"></i> Remaining Balance
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">Rs.</span>
+                                    <input type="number" step="0.01" class="form-control bg-light" id="edit_remaining_balance" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Advance Payment Section -->
+                        <div class="row mb-4" id="editAdvanceSection" style="display: none;">
+                            <div class="col-md-12">
+                                <div class="alert alert-info border-0 bg-gradient">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <span class="fw-bold">Advance Payment:</span> This expense has advance payment
+                                </div>
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-pencil-square"></i> Advance Note
+                                </label>
+                                <textarea class="form-control" id="edit_advance_note" rows="2"></textarea>
+                                <input type="hidden" id="edit_is_advance" value="false">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-journal-text"></i> Additional Notes
+                                </label>
+                                <textarea class="form-control" id="edit_notes" rows="2" placeholder="Any additional notes..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="updateExpense()">
+                        <i class="bi bi-check-circle"></i> Update Expense
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Expense Details Modal -->
+    <div class="modal fade" id="viewExpenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="bi bi-eye"></i> Expense Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="expenseDetailsBody">
+                    Loading...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Main Expenses JS -->
+    <script src="js/expenses.js"></script>
+    
+    <!-- Logout and Utility Script -->
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        async function logout() {
+            const confirmLogout = confirm('Are you sure you want to logout?');
+            if (!confirmLogout) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Export expenses to Excel
+        async function exportExpenses() {
+            try {
+                window.location.href = `${API_BASE}/reports/expenses/excel`;
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting expenses');
+            }
+        }
+        
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const user = result.data;
+                    document.getElementById('userInfo').innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span>${user.name || user.username}</span>
+                            <span class="badge bg-${user.role === 'super_admin' ? 'warning' : 'info'} ms-1 small">
+                                ${user.role || 'admin'}
+                            </span>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+        
+        // Load sidebar material stats
+        async function loadSidebarStats() {
+            try {
+                const response = await fetch(`${API_BASE}/expenses/materials/totals`, {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const materials = result.data;
+                    let html = '<ul class="list-unstyled mt-2">';
+                    
+                    // Show top 3 materials
+                    materials.slice(0, 3).forEach(mat => {
+                        html += `<li class="mb-2">
+                            <i class="bi bi-dot"></i> ${mat.category}: 
+                            <strong>${parseFloat(mat.total_quantity).toFixed(0)}</strong> ${mat.unit_type || 'units'}
+                        </li>`;
+                    });
+                    
+                    if (materials.length > 3) {
+                        html += `<li class="text-white-50 small">+${materials.length - 3} more</li>`;
+                    }
+                    
+                    html += '</ul>';
+                    document.getElementById('sidebarMaterialStats').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading sidebar stats:', error);
+                document.getElementById('sidebarMaterialStats').innerHTML = 
+                    '<div class="text-white-50 small">Unable to load stats</div>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            loadSidebarStats();
+        });
+    </script>
+</body>
+</html>

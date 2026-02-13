@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Expense Tracker - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 50%, #0a58ca 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            top: -50%;
+            left: -50%;
+            z-index: 1;
+        }
+
+        .landing-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .landing-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .landing-icon {
+            font-size: 100px;
+            color: #0d6efd;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 20px;
+            background: rgba(13, 110, 253, 0.1);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(13, 110, 253, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+            }
+        }
+
+        .landing-card h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .landing-card .lead {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            color: white;
+            padding: 15px 50px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 18px;
+            margin: 10px;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(13, 110, 253, 0.4);
+            color: white;
+            background: linear-gradient(135deg, #0b5ed7, #0a58ca);
+        }
+
+        .btn-login i {
+            margin-right: 10px;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            color: #475569;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-item i {
+            color: #0d6efd;
+            font-size: 20px;
+        }
+
+        .demo-credentials {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .demo-credentials h6 {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .credential-box {
+            display: inline-block;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin: 5px;
+        }
+
+        .credential-box strong {
+            color: #0d6efd;
+        }
+
+        @media (max-width: 768px) {
+            .landing-card {
+                padding: 40px 20px;
+            }
+            
+            .landing-card h1 {
+                font-size: 32px;
+            }
+            
+            .features {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .feature-item {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <div class="landing-card">
+            <div class="landing-icon">
+                <i class="bi bi-building"></i>
+            </div>
+            
+            <h1>Construction Manager</h1>
+            <p class="lead">
+                Complete construction expense tracking solution with real-time analytics, 
+                reporting, and inventory management.
+            </p>
+            
+            <a href="/login" class="btn btn-login btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Access Admin Portal
+            </a>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Expense Tracking</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Reports & Analytics</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Secure Login</span>
+                </div>
+            </div>
+            
+            <div class="demo-credentials">
+                <h6><i class="bi bi-info-circle"></i> Demo Access</h6>
+                <div class="credential-box">
+                    <strong>Username:</strong> admin
+                </div>
+                <div class="credential-box">
+                    <strong>Password:</strong> admin123
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <small><i class="bi bi-shield-check"></i> Use these credentials to access the demo dashboard</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
